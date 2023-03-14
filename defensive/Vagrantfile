@@ -1,0 +1,39 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# script vagrant pour la machine virtuelle defensive.
+Vagrant.configure("2") do |config|
+  
+    # VM box to Debian 11
+    config.vm.box = "generic/debian11"
+  
+    # Set VM name
+    config.vm.hostname = "Defensive"
+
+    # Set network configuration
+    config.vm.network "private_network", ip: "192.168.10.10"
+
+    #Configurations des ports tcp et udp
+    config.vm.network "forwarded_port", guest: 80, host: 8080, protocol: "tcp"
+    config.vm.network "forwarded_port", guest: 23, host: 2323, protocol: "tcp"
+    config.vm.network "forwarded_port", guest: 53, host: 5353, protocol: "udp"
+  
+    #Désactiver GUI de la machine virtuelle, spécifier la RAM et le CPU
+    config.vm.provider "virtualbox" do |vb|
+	  vb.name = "Defensive"
+        vb.gui = false
+        vb.memory = "2048"
+        vb.cpus = 2
+    end
+  
+    # Install les packets pour la machine defensive
+    config.vm.provision "shell", inline: <<-SHELL
+       apt-get update
+       setxkbmap -layout fr
+       apt-get install -y build-essential 
+       apt-get install -y bash 
+       apt-get install -y zsh
+       apt-get install -y dnsutils telnet apache2
+    SHELL
+end
+  
