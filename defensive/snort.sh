@@ -68,15 +68,17 @@ RemainAfterExit=yes
 WantedBy=default.target
 EOL
 
+#==============================================================================================================
+#=================================== LOG =======================================================================
 mkdir /var/log/snort
 
-cat > /usr/local/etc/snort/snort.lua << EOL
-alert_fast = {
-  file = true,
-  packet = false,
-  limit = 10,
-}
-EOL
+#cat >> /usr/local/etc/snort/snort.lua << EOL
+#alert_fast = {
+#  file = true,
+#  packet = false,
+#  limit = 10,
+#}
+#EOL
 
 #Droit Snort
 useradd -r -s /usr/sbin/nologin -M -c SNORT_IDS snort
@@ -88,7 +90,7 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/snort -c /usr/local/etc/snort/snort.lua -s 65535 -k none -l /var/log/snort -D -i eth1 -m 0x1b -u snort -g snort
+ExecStart=/usr/local/bin/snort -c /usr/local/etc/snort/snort.lua -s 65535 -k none -i eth1 -m 0x1b -u snort -g snort
 ExecStop=/bin/kill -9 $MAINPID
 
 [Install]
@@ -106,6 +108,12 @@ systemctl enable --now snort3
 #Règle snort
 mkdir /usr/local/etc/rules
 
+cat > /usr/local/etc/rules/local.rules << EOL
+alert tcp any any -> 192.168.10.10 any (flags:S; detection_filter: track by_dst, count 70, seconds 10; msg:"SYN attack detected"; sid:1000001; rev:1;)
+alert tcp any any -> 192.168.10.10 any (flags:R; msg: "RST attack detected"; sid: 1000002; rev: 1;)
+alert icmp any any -> 192.168.10.10 any (msg:"Ping sweep with Nmap detected";itype:8; sid:1000003; rev:1;)
+EOL
 
-snort -c /usr/local/etc/snort/snort.lua -R /usr/local/etc/rules/local.rules -i enth1 -A alert_fast -s 65535 -k none -l /var/log/snort
+#snort -c /usr/local/etc/snort/snort.lua -R /usr/local/etc/rules/local.rules -i eth1 -A alert_fast -s 65535 -k none
+snort -c /usr/local/etc/snort/snort.lua -R /usr/local/etc/rules/local.rules -i eth1 -A alert_fast -s 65535 -k none -l /var/log/snort
 

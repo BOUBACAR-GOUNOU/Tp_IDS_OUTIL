@@ -1,23 +1,5 @@
-sudo useradd -r -s /usr/sbin/nologin -M -c SNORT_IDS snort
-
-sudo cat > /etc/systemd/system/snort3.service << EOL
-[Unit]
-Description=Snort Daemon
-After=syslog.target network.target
-
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/snort -c /usr/local/etc/snort/snort.lua -s 65535 -k none -l /var/log/snort -D -i eth1 -m 0x1b -u snort -g snort
-ExecStop=/bin/kill -9 $MAINPID
-
-[Install]
-WantedBy=multi-user.target
+cat > /usr/local/etc/rules/local.rules << EOL
+alert tcp any any -> 192.168.10.10 any (flags:R; msg: "RST attack detected"; sid: 1000002; rev: 1;)
+alert icmp any any -> 192.168.10.10 any (msg:"Ping sweep with Nmap detected";itype:8; sid:1000003; rev:1;)
+alert tcp any any -> 192.168.10.10 any (flags:S; detection_filter: track by_dst, count 70, seconds 10; msg:"SYN attack detected"; sid:1000001; rev:1;)
 EOL
-
-sudo systemctl daemon-reload
-
-sudo chmod -R 5775 /var/log/snort
-sudo chown -R snort:snort /var/log/snort
-
-sudo systemctl enable --now snort3-nic.service
-sudo systemctl enable --now snort3

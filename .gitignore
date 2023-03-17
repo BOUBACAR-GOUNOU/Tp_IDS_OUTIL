@@ -1,0 +1,6 @@
+defensive/.idea
+defensive/.vagrant
+defensive/test.sh
+
+offensive/.idea
+offensive/.vagrant
