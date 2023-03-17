@@ -142,6 +142,3 @@ EOL
 else
   echo "Snort est déjà installé."
 fi
-
-
-
