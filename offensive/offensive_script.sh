@@ -34,7 +34,8 @@ do
             echo "Nmap is installed."
         fi
             nmap -D RND:100 -sS -n 192.168.10.10
-            nmap -sR -PE 192.168.10.10
+            nmap -sS 192.168.10.10
+		nmap -sP 192.168.10.10
             ;;
         "Web services and database attacks using metasploit")
         
