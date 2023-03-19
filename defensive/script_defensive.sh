@@ -113,40 +113,40 @@ fi
 
 #======================================================================================================================================================
 #=================================== Deploiement d'un site vulnerable et configuration ================================================================
-#créer un dossier tp dans /var/www/html
-apt-get install unzip
-mkdir /var/www/html/tp
-cd /var/www/html/tp
-#telechargement du
-wget https://cyberini.com/ressources-cours-hacking-ethique/sitevulnerable.zip
-unzip sitevulnerable.zip
-
-#Donnez les droits au répertoire tp :
-sudo chmod -R 755 /var/www/html/tp
-sudo chown -R www-data:www-data /var/www/html/tp
-
-# Ajout de mysql dans la source liste et son installation
-if ! [ -x "$(command -v mysqlcheck)" ]; then
-  cd /usr/srr
-  wget https://dev.mysql.com/get/mysql-apt-config_0.8.22-1_all.deb
-  apt install ./mysql-apt-config_0.8.22-1_all.deb
-  apt update
-  apt install mysql-server -y
-fi
-#Lancement de apache2 et mysql :
-service apache2 start
-service mysql start
-
-#Creation d'un utilisateur
-if [ -x "$(command -v mysqlcheck)" ]; then
-  user="root"
-  password="root"
-  mysql -u$user -p$password << EOF
-    CREATE DATABASE demobdd;
-    USE demobdd;
-    source /var/www/html/tp/demobdd.sql;
-EOF
-fi
+##créer un dossier tp dans /var/www/html
+#apt-get install unzip
+#mkdir /var/www/html/tp
+#cd /var/www/html/tp
+##telechargement du
+#wget https://cyberini.com/ressources-cours-hacking-ethique/sitevulnerable.zip
+#unzip sitevulnerable.zip
+#
+##Donnez les droits au répertoire tp :
+#sudo chmod -R 755 /var/www/html/tp
+#sudo chown -R www-data:www-data /var/www/html/tp
+#
+## Ajout de mysql dans la source liste et son installation
+#if ! [ -x "$(command -v mysqlcheck)" ]; then
+#  cd /usr/srr
+#  wget https://dev.mysql.com/get/mysql-apt-config_0.8.22-1_all.deb
+#  apt install ./mysql-apt-config_0.8.22-1_all.deb
+#  apt update
+#  apt install mysql-server -y
+#fi
+##Lancement de apache2 et mysql :
+#service apache2 start
+#service mysql start
+#
+##Creation d'un utilisateur
+#if [ -x "$(command -v mysqlcheck)" ]; then
+#  user="root"
+#  password="root"
+#  mysql -u$user -p$password << EOF
+#    CREATE DATABASE demobdd;
+#    USE demobdd;
+#    source /var/www/html/tp/demobdd.sql;
+#EOF
+#fi
 
 
 
@@ -367,6 +367,48 @@ if [ -x "$(command -v snort)" ]; then
 EOL
   echo "Rules snort written successfully"
   #snort -c /usr/local/etc/snort/snort.lua -R /usr/local/etc/rules/local.rules -i eth1 -A alert_fast -s 65535 -k none
-  #Demarrage de snort 3 et son logging
-  snort -c /usr/local/etc/snort/snort.lua -R /usr/local/etc/rules/local.rules -i eth1 -A alert_fast -s 65535 -k none -l /var/log/snort
 fi
+
+##captue de paquets
+#if [ -x "$(command -v tshark)" ]; then
+#  touch capture.pcap
+#  chmod 777 capture.pcap
+#  tshark -i eth1 -w test.pcap
+#  snort -c /usr/local/etc/snort/snort.lua -R /usr/local/etc/rules/local.rules -r test.pcap -A alert_fast -s 65535 -k none -l /var/log/snort
+#fi
+
+
+echo "Bienvenue dans le menu du script defensive"
+
+# Create an array of options
+options=("Snort"
+    "Tshark"
+    "Quit")
+# Present menu with options
+PS3="Le premier choix vous permet d'utiliser snort et le deuxième vous permet de faire capture avec Tsahrk. Entrez votre choix:  "
+select opt in "${options[@]}"
+do
+  case $opt in
+    "Snort")
+      echo "Demarrage de snort"
+      #Demarrage de snort 3 et son logging
+      if [ -x "$(command -v snort)" ]; then
+        snort -c /usr/local/etc/snort/snort.lua -R /usr/local/etc/rules/local.rules -i eth1 -A alert_fast -s 65535 -k none -l /var/log/snort
+      fi
+        ;;
+    "Tshark")
+      echo "Tsahrk "
+    #captue de paquets
+      if [ -x "$(command -v tshark)" ]; then
+        touch capture.pcap
+        chmod 777 capture.pcap
+        tshark -i eth1 -w test.pcap
+        snort -c /usr/local/etc/snort/snort.lua -R /usr/local/etc/rules/local.rules -r test.pcap -A alert_fast -s 65535 -k none -l /var/log/snort
+      fi
+        ;;
+    "Quit")
+      break
+    ;;
+    *) echo invalid option;;
+    esac
+done
