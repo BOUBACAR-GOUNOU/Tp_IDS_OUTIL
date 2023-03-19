@@ -1,0 +1,11 @@
+$TTL 10800
+$ORIGIN 10.168.192.in-addr.arpa.
+@ 	IN SOA Defensive.tp. root.tp. (
+  	20180906;
+  	3h;
+  	1h;
+  	1w;
+  	1h);
+@ 	IN NS Defensive.tp.
+132 	IN PTR Defensive.tp.
+1 	IN PTR host.tp.

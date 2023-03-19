@@ -1,0 +1,13 @@
+$TTL 10800
+$ORIGIN tp.
+@ 	IN SOA Defensive.tp. root.tp. (
+ 	20180906;
+ 	3h;
+ 	1h;
+ 	1w;
+ 	1h);
+@ 	IN NS Defensive.tp.
+Defensive   IN A 192.168.10.10
+host        IN A 192.168.10.11
+
+
